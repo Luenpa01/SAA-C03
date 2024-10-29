@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+echo "== Creating S3 bucket =="
+
+# Check for bucket name
+if [ -z "$1" ]; then
+    echo "Error: A bucket name is required. Usage: ./bucket.sh my-bucket-name"
+    exit 1
+fi
+
+BUCKET_NAME=$1
+
+# Check for AWS CLI installation
+if ! command -v aws &> /dev/null; then
+    echo "Error: AWS CLI is not installed. Please install it and try again."
+    exit 1
+fi
+
+# Specify region
+REGION="us-east-1"
+
+# Create the S3 bucket
+if [ "$REGION" == "us-east-1" ]; then
+    # Create the bucket without location constraint for us-east-1
+    if aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$REGION" --query Location --output text; then
+        echo "Bucket '$BUCKET_NAME' created successfully in $REGION."
+    else
+        echo "Error: Failed to create bucket '$BUCKET_NAME'."
+        exit 1
+    fi
+else
+    # Use location constraint for other regions
+    if aws s3api create-bucket \
+    --bucket "$BUCKET_NAME" \
+    --create-bucket-configuration="LocationConstraint=$REGION" \
+    --query Location \
+    --output text; then
+        echo "Bucket '$BUCKET_NAME' created successfully in $REGION."
+    else
+        echo "Error: Failed to create bucket '$BUCKET_NAME'."
+        exit 1
+    fi
+fi
+
