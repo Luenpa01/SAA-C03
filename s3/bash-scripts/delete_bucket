@@ -19,7 +19,6 @@ fi
 
 # Delete the S3 bucket
 if [ "$BUCKET_NAME" == $1 ]; then
-    # Create the bucket without location constraint for us-east-1
     if aws s3api delete-bucket --bucket "$BUCKET_NAME" ; then
         echo "Bucket '$BUCKET_NAME' deleted successfully."
     else
